@@ -5,6 +5,7 @@ from __future__ import absolute_import
 import six
 from .html import hyphenate
 from django.test import TestCase
+from django.test.utils import override_settings
 from .templatetags.softhyphen_tags import softhyphen
 
 
@@ -91,4 +92,28 @@ class SoftHyphenTest(TestCase):
         self.failUnlessEqual(
             after,
             six.u('<h1>\u043f\u0435&shy;\u0440\u0435.</h1>')
+        )
+
+    @override_settings(SOFTHYPHEN_DEFAULT_LANG='ru-ru')
+    def test_settings_default_lang(self):
+        """
+        Test SOFTHYPHEN_DEFAULT_LANG settings var
+        """
+        before = six.u('<h1>\u043f\u0435\u0440\u0435.</h1>')
+        after = hyphenate(before)
+        self.failUnlessEqual(
+            after,
+            six.u('<h1>\u043f\u0435&shy;\u0440\u0435.</h1>')
+        )
+
+    @override_settings(SOFTHYPHEN_DEFAULT_LANG='ru-ru')
+    def test_settings_default_lang_filter(self):
+        """
+        Test SOFTHYPHEN_DEFAULT_LANG settings var in template filter
+        """
+        before = "<h1>Me encanta guiones</h1>"
+        after = softhyphen(before, language='es-es')
+        self.failUnlessEqual(
+            after,
+            six.u("<h1>Me en&shy;can&shy;ta gu&shy;io&shy;nes</h1>")
         )

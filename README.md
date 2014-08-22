@@ -44,13 +44,26 @@ INSTALLED_APPS = (
 )
 ```
 
+Set optional settings in your settings.py
+
+```python
+# default hyphenation language
+SOFTHYPHEN_DEFAULT_LANG = 'ru-ru'
+```
+```python
+# set cache backend name to enable caching
+SOFTHYPHEN_CACHE_NAME = 'default'
+```
+
+
+
 Use it in as a function.
 
 ```python
 >>> from softhyphen.html import hyphenate
 >>> hyphenate("<h1>I love hyphenation</h1>")
 "<h1>I love hy&shy;phen&shy;a&shy;tion</h1>"
->>> # It is English by default, but you can provide another language.
+>>> # It is English by default, but you can provide another language or set default language in settings.py using SOFTHYPHEN_DEFAULT_LANG variable
 >>> hyphenate("<h1>Me encanta guiones</h1>", language="es-es")
 <h1>Me en&shy;can&shy;ta gu&shy;io&shy;nes</h1>
 ```

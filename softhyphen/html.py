@@ -8,9 +8,12 @@ from __future__ import absolute_import
 import os
 import re
 import six
+import hashlib
 from bs4 import BeautifulSoup
 from .hyphenator import Hyphenator
 from bs4.element import PreformattedString
+from django.conf import settings
+from django.core.cache import get_cache
 
 
 class DontEscapeDammit(PreformattedString):
@@ -23,7 +26,7 @@ class DontEscapeDammit(PreformattedString):
         return self.PREFIX + self + self.SUFFIX
 
 
-def hyphenate(html, language='en-us', hyphenator=None, blacklist_tags=(
+def hyphenate(html, language=None, hyphenator=None, blacklist_tags=(
     'code', 'tt', 'pre', 'head', 'title', 'script', 'style', 'meta', 'object',
     'embed', 'samp', 'var', 'math', 'select', 'option', 'input', 'textarea',
     'span')
@@ -46,6 +49,18 @@ def hyphenate(html, language='en-us', hyphenator=None, blacklist_tags=(
     >>> hyphenate("<p>The brave men, living and dead.</p>")
     u'<p>The brave men, liv&shy;ing and dead.</p>'
     """
+    if not language:
+        language = getattr(settings, "SOFTHYPHEN_DEFAULT_LANG", 'en-us')
+
+    # Try to get result from cache if cache name is provided in settings
+    cache_name = getattr(settings, "SOFTHYPHEN_CACHE_NAME", None)
+    if cache_name:
+        cache = get_cache(cache_name)
+        cache_key = "{}_{}".format(language, hashlib.md5(html).hexdigest())
+        result = cache.get(cache_key)
+        if not result is None:
+            return result
+
     # Load hyphenator if one is not provided
     if not hyphenator:
         hyphenator = get_hyphenator_for_language(language)
@@ -56,7 +71,14 @@ def hyphenate(html, language='en-us', hyphenator=None, blacklist_tags=(
     # Recursively hyphenate each element
     hyphenate_element(soup, hyphenator, blacklist_tags)
 
-    return six.text_type(soup)
+    result = six.text_type(soup)
+
+    # Save result to cache
+    if cache_name:
+        cache.set(cache_key, result)
+
+    return result
+
 
 
 # Constants

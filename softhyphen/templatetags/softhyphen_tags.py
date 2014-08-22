@@ -5,7 +5,7 @@ from softhyphen.html import hyphenate
 
 
 @register.filter
-def softhyphen(value, language="en-us"):
+def softhyphen(value, language=None):
     """
     Hyphenates html.
     """
