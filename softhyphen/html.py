@@ -56,7 +56,7 @@ def hyphenate(html, language=None, hyphenator=None, blacklist_tags=(
     cache_name = getattr(settings, "SOFTHYPHEN_CACHE_NAME", None)
     if cache_name:
         cache = get_cache(cache_name)
-        cache_key = "{}_{}".format(language, hashlib.md5(html).hexdigest())
+        cache_key = "{}_{}".format(language, hashlib.md5(html.encode('utf-8')).hexdigest())
         result = cache.get(cache_key)
         if not result is None:
             return result
