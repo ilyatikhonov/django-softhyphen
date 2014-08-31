@@ -28,8 +28,7 @@ class DontEscapeDammit(PreformattedString):
 
 def hyphenate(html, language=None, hyphenator=None, blacklist_tags=(
     'code', 'tt', 'pre', 'head', 'title', 'script', 'style', 'meta', 'object',
-    'embed', 'samp', 'var', 'math', 'select', 'option', 'input', 'textarea',
-    'span')
+    'embed', 'samp', 'var', 'math', 'select', 'option', 'input', 'textarea')
         ):
     """
     Hyphenate a fragement of HTML
@@ -49,6 +48,9 @@ def hyphenate(html, language=None, hyphenator=None, blacklist_tags=(
     >>> hyphenate("<p>The brave men, living and dead.</p>")
     u'<p>The brave men, liv&shy;ing and dead.</p>'
     """
+    if not isinstance(html, six.string_types):
+        return six.text_type("")
+
     if not language:
         language = getattr(settings, "SOFTHYPHEN_DEFAULT_LANG", 'en-us')
 
